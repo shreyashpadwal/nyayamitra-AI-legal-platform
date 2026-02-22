@@ -1,0 +1,44 @@
+# -------------------------
+# PYTHON
+# -------------------------
+__pycache__/
+*.py[cod]
+*.db
+*.sqlite3
+
+# Virtual Environments
+legalenv/
+venv/
+env/
+
+# Environment variables
+.env
+.env.*
+
+# Logs
+*.log
+
+# Vector DB / Embeddings
+backend/data/faiss_db/
+backend/data/chroma_db/
+*.faiss
+*.index
+
+# -------------------------
+# NODE / FRONTEND
+# -------------------------
+node_modules/
+dist/
+.vite/
+
+# -------------------------
+# IDE
+# -------------------------
+.vscode/
+.idea/
+
+# -------------------------
+# OS FILES
+# -------------------------
+.DS_Store
+Thumbs.db
