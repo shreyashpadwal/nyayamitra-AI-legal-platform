@@ -1,6 +1,8 @@
 fastapi
 uvicorn
 python-dotenv
+
+# AI / RAG
 langchain
 langchain-community
 langchain-groq
@@ -8,12 +10,19 @@ langchain-text-splitters
 faiss-cpu
 sentence-transformers
 pypdf
+
+# Core
 pydantic
+
+# Database
 sqlalchemy
-sqlalchemy-utils
+psycopg2-binary
+pandas
+
+# Security
 passlib[bcrypt]
 python-jose[cryptography]
-pandas
-psycopg2-binary
-requests
+
+# Document Export
 fpdf2
+python-docx
