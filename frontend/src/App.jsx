@@ -1,32 +1,48 @@
-import ChatWindow from './components/ChatWindow'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { isAuthenticated, isLawyer } from "./utils/auth"
 
-function App() {
-  return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#0f1117' }}>
-      <header style={{
-        background: '#1a1d2e',
-        padding: '16px 24px',
-        borderBottom: '1px solid #2d3250',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '14px'
-      }}>
-        <span style={{ fontSize: '32px' }}>⚖️</span>
-        <div>
-          <h1 style={{ fontSize: '20px', fontWeight: '700', color: '#7c83f5', letterSpacing: '-0.5px' }}>
-            Indian Legal Assistant
-          </h1>
-          <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
-            Powered by RAG • Indian Constitution, IPC, RTI, Consumer Protection Act
-          </p>
-        </div>
-        <div style={{ marginLeft: 'auto', fontSize: '12px', color: '#4ade80', background: '#0d2a1a', padding: '4px 10px', borderRadius: '20px', border: '1px solid #166534' }}>
-          🟢 Live
-        </div>
-      </header>
-      <ChatWindow />
-    </div>
-  )
+import LandingPage from "./pages/LandingPage"
+import Login from "./pages/Login"
+import Register from "./pages/Register"
+import CitizenDashboard from "./pages/CitizenDashboard"
+import LawyerDashboard from "./pages/LawyerDashboard"
+import ChatPage from "./pages/ChatPage"
+
+function ProtectedRoute({ children }) {
+    return isAuthenticated() ? children : <Navigate to="/login" replace />
 }
 
-export default App
+function LawyerRoute({ children }) {
+    if (!isAuthenticated()) return <Navigate to="/login" replace />
+    if (!isLawyer()) return <Navigate to="/citizen" replace />
+    return children
+}
+
+export default function App() {
+    return (
+        <BrowserRouter>
+            <Routes>
+                {/* Public */}
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+
+                {/* Citizen */}
+                <Route path="/citizen" element={
+                    <ProtectedRoute><CitizenDashboard /></ProtectedRoute>
+                } />
+                <Route path="/chat" element={
+                    <ProtectedRoute><ChatPage /></ProtectedRoute>
+                } />
+
+                {/* Lawyer */}
+                <Route path="/lawyer" element={
+                    <LawyerRoute><LawyerDashboard /></LawyerRoute>
+                } />
+
+                {/* Fallback */}
+                <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+        </BrowserRouter>
+    )
+}
