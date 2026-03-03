@@ -1,4 +1,4 @@
-# ⚖️ NyayaMitra — AI Legal Research Platform
+# ⚖️ NyayaMitra — AI Legal Intelligence Platform
 
 **NyayaMitra** is a professional, AI-powered legal assistance platform built for the Indian legal system. This repository is pre-configured for **Free Production Deployment**.
 
