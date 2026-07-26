@@ -180,11 +180,6 @@ The backend was tested against Render's free tier during development — it buil
 
 A `Dockerfile` is included and ready for deployment on any host with adequate RAM (4GB+ recommended). For demonstration purposes, run both frontend and backend locally per the setup instructions above.
 
-### Database — Neon (free tier)
-1. Create a project at [neon.tech](https://neon.tech).
-2. Copy the connection string and set it as `DATABASE_URL` locally or on your host.
-3. Tables are created automatically on first backend startup.
-
 ---
 
 ## 📌 Academic Context
