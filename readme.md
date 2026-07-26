@@ -87,7 +87,6 @@ flowchart TD
 | Database | PostgreSQL (SQLAlchemy) |
 | Auth | JWT (python-jose) |
 | Frontend | React 18, Vite, TailwindCSS |
-| Deployment | Hugging Face Spaces (Docker) + Vercel |
 
 ---
 
