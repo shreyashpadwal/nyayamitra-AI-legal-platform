@@ -127,28 +127,20 @@ npm run dev
 
 ---
 
-## 🚀 Deployment
+## 🚀 Deployment Status
 
-### Backend — Hugging Face Spaces (Docker SDK, free tier)
-1. Create a new HF Space → choose **Docker** SDK
-2. Push the `backend/` folder as the Space's repo root
-3. Set environment variables in Space Settings → Variables:
+**Frontend**: Deployed live on Vercel at `<your-vercel-url>` *(add link here when deployed)*.
 
-| Variable | Value |
-|----------|-------|
-| `DATABASE_URL` | Neon/Supabase connection string |
-| `GROQ_API_KEY` | From Groq Console |
-| `SECRET_KEY` | Any long random string |
-| `FRONTEND_URL` | Your Vercel URL (set after frontend deploy) |
+**Backend**: Runs locally / self-hosted for demo purposes.
 
-### Frontend — Vercel
-1. Import the repo → set **Root Directory** to `frontend`
-2. Add environment variable: `VITE_API_URL=https://<your-space>.hf.space`
+> **Note on Free-Tier Deployment:** The backend was tested against Render's free tier during development. It builds successfully but the ML pipeline (`sentence-transformers` embeddings, cross-encoder reranker, FAISS) exceeds the free tier's 512MB RAM limit at model-load time. Free tiers with sufficient RAM for this stack (e.g., Hugging Face Spaces Docker CPU tier) require billing verification that wasn't available for this project, so the backend is run locally for demonstration.
+
+A `Dockerfile` is included and ready for deployment on any host with adequate RAM (4GB+ recommended) for anyone wanting to self-host it.
 
 ### Database — Neon (free tier)
-1. Create project at [neon.tech](https://neon.tech)
-2. Copy the connection string → set as `DATABASE_URL` on HF Spaces
-3. Tables are created automatically on first backend startup
+1. Create a project at [neon.tech](https://neon.tech).
+2. Copy the connection string and set it as `DATABASE_URL` locally or on your host.
+3. Tables are created automatically on first backend startup.
 
 ---
 
