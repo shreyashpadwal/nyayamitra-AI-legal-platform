@@ -4,7 +4,6 @@ import { apiGet, BASE_URL } from "../utils/auth"
 export default function CasesBrowser() {
     const [cases, setCases] = useState([])
     const [loading, setLoading] = useState(true)
-    const [search, setSearch] = useState("")
     const [error, setError] = useState("")
 
     useEffect(() => {
@@ -14,10 +13,6 @@ export default function CasesBrowser() {
             .finally(() => setLoading(false))
     }, [])
 
-    const filtered = cases.filter(c =>
-        c.case_name?.toLowerCase().includes(search.toLowerCase()) ||
-        String(c.year).includes(search)
-    )
 
     if (loading) return (
         <div className="flex justify-center items-center py-20">
@@ -40,14 +35,6 @@ export default function CasesBrowser() {
                 </div>
             )}
 
-            {/* Search */}
-            <input
-                type="text"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                placeholder="Search by case name or year…"
-                className="input-gold mb-5"
-            />
 
             {!cases.length && !error ? (
                 <div className="text-center py-16">
@@ -57,7 +44,7 @@ export default function CasesBrowser() {
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {filtered.map(c => (
+                    {cases.map(c => (
                         <div key={c.id} className="card px-5 py-4 flex items-center justify-between hover:border-gold/30 transition-all duration-200">
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1 flex-wrap">
@@ -78,9 +65,6 @@ export default function CasesBrowser() {
                             )}
                         </div>
                     ))}
-                    {filtered.length === 0 && (
-                        <div className="text-center py-10 text-gray-500">No matching cases found.</div>
-                    )}
                 </div>
             )}
         </div>

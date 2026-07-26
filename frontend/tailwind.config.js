@@ -1,13 +1,14 @@
 /** @type {import('tailwindcss').Config} */
 export default {
     content: ["./index.html", "./src/**/*.{js,jsx}"],
+    darkMode: ["selector", '[data-theme="dark"]'],
     theme: {
         extend: {
             colors: {
-                bg: "#08090f",
-                surface: "#0f1117",
-                surfaceLight: "#161927",
-                border: "#1e2235",
+                bg: "var(--color-bg)",
+                surface: "var(--color-surface)",
+                surfaceLight: "var(--color-surface-light)",
+                border: "var(--color-border)",
                 primary: "#6366f1",
                 accent: "#818cf8",
                 gold: "#f59e0b",
@@ -24,7 +25,16 @@ export default {
             backgroundImage: {
                 "hero-gradient": "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99,102,241,0.18) 0%, transparent 70%)",
                 "gold-gradient": "radial-gradient(ellipse 80% 60% at 50% -10%, rgba(245,158,11,0.15) 0%, transparent 70%)",
-            }
+            },
+            animation: {
+                "slide-up": "slideUp 0.2s ease-out",
+            },
+            keyframes: {
+                slideUp: {
+                    from: { opacity: "0", transform: "translateY(8px)" },
+                    to: { opacity: "1", transform: "translateY(0)" },
+                },
+            },
         },
     },
     plugins: [],

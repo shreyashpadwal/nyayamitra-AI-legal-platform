@@ -18,12 +18,18 @@ def register(body: RegisterRequest, db: Session = Depends(get_db)):
         username=body.username,
         email=body.email,
         hashed_password=hash_password(body.password),
-        role=body.role if body.role in ("citizen", "lawyer") else "citizen"
+        role=body.role if body.role in ("citizen", "lawyer") else "citizen",
     )
     db.add(user)
     db.commit()
     db.refresh(user)
-    return {"message": "Account created successfully", "username": user.username, "role": user.role}
+
+    return {
+        "message": "Account created successfully",
+        "username": user.username,
+        "role": user.role,
+        "lawyer_verification_pending": False,
+    }
 
 @router.post("/login")
 def login(body: LoginRequest, db: Session = Depends(get_db)):

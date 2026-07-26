@@ -7,6 +7,7 @@ import Register from "./pages/Register"
 import CitizenDashboard from "./pages/CitizenDashboard"
 import LawyerDashboard from "./pages/LawyerDashboard"
 import ChatPage from "./pages/ChatPage"
+import { ToastContainer } from "./components/Toast"
 
 function ProtectedRoute({ children }) {
     return isAuthenticated() ? children : <Navigate to="/login" replace />
@@ -43,6 +44,7 @@ export default function App() {
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            <ToastContainer />
         </BrowserRouter>
     )
 }

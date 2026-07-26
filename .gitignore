@@ -1,44 +1,34 @@
-# Python
+# ── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
-*.class
+*.pyo
 *.so
 .Python
-env/
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
 *.egg-info/
-.installed.cfg
 *.egg
 MANIFEST
 
-# Virtual Environments
+# ── Virtual Environments ──────────────────────────────────────────────────────
 venv/
 .venv/
+legalenv/
+env/
 ENV/
 env.bak/
 venv.bak/
-legalenv/
 
-# Environment Variables
+# ── Environment Secrets ───────────────────────────────────────────────────────
+# NEVER commit .env files — set real values as platform env vars (HF Spaces, Vercel)
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+# .env.example files ARE committed (they document required variables, no secrets)
 
-# Node
+# ── Node / Frontend ───────────────────────────────────────────────────────────
 node_modules/
 npm-debug.log*
 yarn-debug.log*
@@ -48,26 +38,18 @@ frontend/dist/
 frontend/.next/
 frontend/out/
 
-# IDEs
+# ── IDEs & OS ─────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
+.DS_Store
+Thumbs.db
 
-# Project Specific (Sensitive/Large)
-backend/data/*
-!backend/data/judgments_index/
-backend/data/judgments_index/*
-!backend/data/judgments_index/*.faiss
-!backend/data/judgments_index/*.pkl
+# ── Data: include FAISS indices and PDFs (small enough to commit, ~45MB total)
+# This gives anyone who clones the repo a fully working demo immediately.
+# Exclude ONLY the empty dead folder that was removed.
+backend/data/vectors/lawyer/
 
-!backend/data/vectors/
-backend/data/vectors/*
-!backend/data/vectors/citizen/
-backend/data/vectors/citizen/*
-!backend/data/vectors/citizen/*.faiss
-!backend/data/vectors/citizen/*.pkl
-
-!backend/data/pdfs/
-lawyer_help/data/
-legal data/
+# Quarantined PDFs (corrupt/empty files moved here during data prep)
+backend/data/pdfs/_quarantine/

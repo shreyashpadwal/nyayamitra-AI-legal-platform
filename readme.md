@@ -1,68 +1,161 @@
-# ⚖️ NyayaMitra — AI Legal Intelligence Platform
+# ⚖️ NyayaMitra — AI Legal Platform
 
-**NyayaMitra** is a professional, AI-powered legal assistance platform built for the Indian legal system. This repository is pre-configured for **Free Production Deployment**.
+**NyayaMitra** ("Friend of Justice") is a full-stack AI-powered legal information platform for the Indian legal system. Built as a final-year academic and placement portfolio project.
 
----
-
-## 🚀 Deployment Guide
-
-### 1. Database (Neon PostgreSQL - Free)
-1. Sign up at [Neon.tech](https://neon.tech).
-2. Create a new project and copy the **Connection String** (DATABASE_URL).
-3. The backend will automatically create tables on first startup.
-
-### 2. Backend (Render - Free)
-1. Connect your GitHub repository to [Render](https://render.com).
-2. Create a new **Web Service**.
-3. **Runtime**: Python 3
-4. **Build Command**: `pip install -r backend/requirements.txt`
-5. **Start Command**: `cd backend && uvicorn app.main:app --host 0.0.0.0 --port 10000`
-6. **Environment Variables**:
-   - `DATABASE_URL`: (From Neon)
-   - `GROQ_API_KEY`: (From Groq Cloud)
-   - `SECRET_KEY`: (Any random string)
-   - `ALGORITHM`: `HS256`
-   - `ACCESS_TOKEN_EXPIRE_MINUTES`: `60`
-
-### 3. Frontend (Vercel - Free)
-1. Connect your repository to [Vercel](https://vercel.com).
-2. Select the `frontend` directory as the root.
-3. **Framework Preset**: Vite.
-4. **Environment Variables**:
-   - Update `frontend/src/utils/auth.js` with your Render backend URL before pushing.
+![Tech Stack](https://img.shields.io/badge/Backend-FastAPI-009688?style=flat-square&logo=fastapi)
+![LangGraph](https://img.shields.io/badge/AI-LangGraph%20%2B%20Groq%20LLaMA-orange?style=flat-square)
+![React](https://img.shields.io/badge/Frontend-React%20%2B%20Vite-61DAFB?style=flat-square&logo=react)
+![Postgres](https://img.shields.io/badge/DB-PostgreSQL-336791?style=flat-square&logo=postgresql)
 
 ---
 
-## 🛠️ Local Tech Stack
-- **Backend**: FastAPI, SQLAlchemy, PostgreSQL, FAISS (Vector DB)
-- **Frontend**: React, Vite, TailwindCSS
-- **AI**: LangChain, Groq (LLaMA 3.1), sentence-transformers
+## 🧠 What It Does
+
+NyayaMitra has two modules serving different user types:
+
+### 👤 Citizen Legal Assistant
+Answers everyday legal questions in plain language using a **Self-RAG + Corrective-RAG pipeline** over a corpus of Indian statutes (IPC, CrPC, RTI Act, Consumer Protection Act, Constitution of India). Key features:
+- Hybrid BM25 + FAISS retrieval with cross-encoder reranking
+- Hallucination detection with source grounding
+- Conversational context — follow-up questions resolve correctly against prior answers
+- Legal document drafting (FIR, consumer complaint, RTI application)
+
+### ⚖️ Lawyer Research Tool
+Helps lawyers find similar case judgments and generate structured litigation documents:
+- Case similarity search over ~150 uploaded judgment PDFs
+- Litigation strategy generator with cited precedents
+- Auto-generation of bail applications, legal notices, written arguments
+- Citation verification — fabricated case names are detected and stripped before output
+
+---
+
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Backend API | FastAPI, Python 3.10 |
+| AI Pipeline | LangGraph (Self-RAG), LangChain |
+| LLM | Groq Cloud — LLaMA 3.1 8B Instant |
+| Retrieval | FAISS + BM25 hybrid, `ms-marco-MiniLM-L6-v2` cross-encoder reranker |
+| Embeddings | `all-MiniLM-L6-v2` (sentence-transformers) |
+| Database | PostgreSQL (SQLAlchemy) |
+| Auth | JWT (python-jose) |
+| Frontend | React 18, Vite, TailwindCSS |
+| Deployment | Hugging Face Spaces (Docker) + Vercel |
 
 ---
 
 ## 📂 Project Structure
-```bash
+
+```
 NyayaMitra/
-├── backend/            # FastAPI Backend
-│   ├── app/            # Source Code
-│   ├── data/           # FAISS Index (judgments_index/) & PDFs
-│   └── requirements.txt
-├── frontend/           # React Frontend (Vite)
-├── scripts/            # Admin Utilities (Index builder, DB populator)
-└── README.md           # This guide
+├── backend/
+│   ├── app/
+│   │   ├── api/endpoints/      # FastAPI route handlers
+│   │   ├── core/               # JWT auth
+│   │   ├── db/                 # SQLAlchemy models + session
+│   │   ├── schemas/            # Pydantic request/response models
+│   │   └── services/
+│   │       ├── citizen_graph.py    # LangGraph Self-RAG pipeline (citizen)
+│   │       ├── lawyer_graph.py     # LangGraph pipeline (lawyer)
+│   │       ├── vector_service.py   # FAISS retrieval + document generation
+│   │       ├── retrieval/          # HybridRetriever, CrossEncoderReranker
+│   │       └── prompts/            # Prompt registry (versioned templates)
+│   ├── data/
+│   │   ├── judgments_index/    # FAISS index for lawyer case search (~12MB)
+│   │   ├── vectors/citizen/    # FAISS index for citizen RAG (~9MB)
+│   │   └── pdfs/               # ~150 Indian court judgment PDFs (~24MB)
+│   ├── scripts/
+│   │   ├── sanity_check.py     # Pre-demo health check
+│   │   ├── run_eval.py         # RAG evaluation (RAGAS)
+│   │   ├── add_arrest_rights_chunks.py  # Data prep — index augmentation
+│   │   └── quarantine_empty_pdfs.py     # Data prep — corpus cleaning
+│   ├── Dockerfile              # HF Spaces Docker SDK config
+│   ├── requirements.txt        # Production dependencies
+│   └── requirements-dev.txt    # Eval-only deps (ragas, datasets)
+└── frontend/
+    ├── src/
+    │   ├── pages/              # LandingPage, Login, Register, ChatPage,
+    │   │                       # CitizenDashboard, LawyerDashboard
+    │   ├── components/         # SimilaritySearch, DocumentGenerator, etc.
+    │   └── utils/auth.js       # Token management + API base URL
+    └── .env.example            # Documents VITE_API_URL for Vercel
 ```
 
 ---
 
-## ⚙️ Local Development
-1. **Backend**: 
-   - `cd backend && python -m venv venv`
-   - `source venv/bin/activate` (or `venv\Scripts\activate` on Windows)
-   - `pip install -r requirements.txt`
-   - `uvicorn app.main:app --reload`
-2. **Frontend**:
-   - `cd frontend && npm install && npm run dev`
+## ⚙️ Local Development Setup
+
+### Prerequisites
+- Python 3.10+
+- Node.js 18+
+- PostgreSQL (local) or a free [Neon](https://neon.tech) / [Supabase](https://supabase.com) instance
+- [Groq API key](https://console.groq.com) (free tier)
+
+### Backend
+
+```bash
+cd backend
+python -m venv venv
+# Windows:  venv\Scripts\activate
+# macOS/Linux: source venv/bin/activate
+
+pip install -r requirements.txt
+
+# Copy and fill in the required variables
+cp .env.example .env
+# Edit .env: set DATABASE_URL, GROQ_API_KEY, SECRET_KEY
+
+uvicorn app.main:app --reload
+# → http://localhost:8000
+# → http://localhost:8000/docs  (Swagger UI)
+```
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+
+# Copy and fill in the backend URL
+cp .env.example .env.local
+# Edit .env.local: VITE_API_URL=http://localhost:8000  (for local dev)
+
+npm run dev
+# → http://localhost:5173
+```
 
 ---
 
-⚖️ **NyayaMitra** - *Democratizing Legal Access through AI.*
+## 🚀 Deployment
+
+### Backend — Hugging Face Spaces (Docker SDK, free tier)
+1. Create a new HF Space → choose **Docker** SDK
+2. Push the `backend/` folder as the Space's repo root
+3. Set environment variables in Space Settings → Variables:
+
+| Variable | Value |
+|----------|-------|
+| `DATABASE_URL` | Neon/Supabase connection string |
+| `GROQ_API_KEY` | From Groq Console |
+| `SECRET_KEY` | Any long random string |
+| `FRONTEND_URL` | Your Vercel URL (set after frontend deploy) |
+
+### Frontend — Vercel
+1. Import the repo → set **Root Directory** to `frontend`
+2. Add environment variable: `VITE_API_URL=https://<your-space>.hf.space`
+
+### Database — Neon (free tier)
+1. Create project at [neon.tech](https://neon.tech)
+2. Copy the connection string → set as `DATABASE_URL` on HF Spaces
+3. Tables are created automatically on first backend startup
+
+---
+
+## 📌 Academic Context
+
+This project was developed as a final-year B.Tech project exploring applied LLM systems for domain-specific retrieval. It is **not legal advice** — it is an academic demonstration of RAG system design over Indian legal corpora.
+
+---
+
+*⚖️ NyayaMitra — Democratizing access to legal information through AI.*

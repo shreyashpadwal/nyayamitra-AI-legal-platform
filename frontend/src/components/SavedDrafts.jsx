@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
-import { apiGet, apiDelete, API } from "../utils/auth"
+import { apiGet, apiDelete, API, getToken } from "../utils/auth"
+import { SkeletonCard } from "./Skeleton"
+import { toast } from "./Toast"
 
 const TYPE_CONFIG = {
     consumer_complaint: { label: "Consumer Complaint", color: "text-yellow-400 border-yellow-400/30 bg-yellow-400/10" },
@@ -15,7 +17,7 @@ export default function SavedDrafts() {
     useEffect(() => { fetchDrafts() }, [])
 
     const fetchDrafts = async () => {
-        try { setDrafts(await apiGet("/citizen/drafts")) }
+        try { setDrafts((await apiGet("/citizen/drafts")).slice().reverse()) }
         catch (e) { console.error(e) }
         finally { setLoading(false) }
     }
@@ -36,8 +38,10 @@ export default function SavedDrafts() {
     const fmt = iso => new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })
 
     if (loading) return (
-        <div className="flex justify-center items-center py-20">
-            <div className="spinner" /><span className="ml-3 text-gray-400">Loading drafts…</span>
+        <div className="space-y-3 max-w-3xl">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
         </div>
     )
 
@@ -90,12 +94,12 @@ export default function SavedDrafts() {
                             {modal.content}
                         </div>
                         <div className="flex gap-3 px-6 py-4 border-t border-border flex-shrink-0">
-                            <button onClick={() => { navigator.clipboard.writeText(modal.content) }} className="badge-green cursor-pointer hover:opacity-80 px-4 py-2">
+                            <button onClick={() => { navigator.clipboard.writeText(modal.content); toast.success("Copied to clipboard!") }} className="badge-green cursor-pointer hover:opacity-80 px-4 py-2">
                                 📋 Copy
                             </button>
                             <button onClick={async () => {
                                 try {
-                                    const token = localStorage.getItem("token")
+                                    const token = getToken()
                                     const res = await fetch(`${API}/citizen/download-docx/${modal.id}`, {
                                         headers: { "Authorization": `Bearer ${token}` }
                                     })

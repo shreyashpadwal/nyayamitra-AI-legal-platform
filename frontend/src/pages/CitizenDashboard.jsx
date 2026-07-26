@@ -5,6 +5,7 @@ import ChatHistory from "../components/ChatHistory"
 import DocumentGenerator from "../components/DocumentGenerator"
 import SavedDrafts from "../components/SavedDrafts"
 import LegalGuides from "../components/LegalGuides"
+import ThemeToggle from "../components/ThemeToggle"
 
 const NAV = [
     { key: "chat", icon: "💬", label: "Chat Assistant" },
@@ -26,30 +27,39 @@ export default function CitizenDashboard() {
         switch (tab) {
             case "chat":
                 return (
-                    <div className="flex flex-col items-center justify-center h-full text-center py-20">
-                        <div className="text-7xl mb-6">⚖️</div>
-                        <h2 className="text-2xl font-bold text-white mb-3">Indian Legal AI Assistant</h2>
-                        <p className="text-gray-400 mb-8 max-w-md">
+                    <div className="flex flex-col items-center justify-center h-full text-center py-16 px-4">
+                        <div className="w-20 h-20 bg-primary/10 border border-primary/20 rounded-3xl flex items-center justify-center text-5xl mb-6 shadow-glow">
+                            ⚖️
+                        </div>
+                        <h2 className="text-2xl font-bold text-white mb-2">Indian Legal AI Assistant</h2>
+                        <p className="text-gray-400 mb-2 max-w-md text-sm leading-relaxed">
                             Ask any question about Indian law — IPC, RTI, Constitution, Consumer Protection Act, CrPC
                         </p>
-                        <button onClick={() => navigate("/chat")} className="btn-primary px-8 py-3.5 text-base">
+                        <p className="text-gray-600 text-xs mb-8">
+                            Powered by RAG · FAISS · Groq LLaMA 3.1
+                        </p>
+                        <button onClick={() => navigate("/chat")} className="btn-primary px-8 py-3.5 text-base mb-10">
                             Open Chat Assistant →
                         </button>
-                        <div className="mt-10 grid grid-cols-2 gap-3 max-w-lg w-full">
-                            {[
-                                "What are my rights if police arrest me?",
-                                "How do I file an RTI application?",
-                                "What is punishment for theft in IPC?",
-                                "What to do if a product is defective?",
-                            ].map(q => (
-                                <button
-                                    key={q}
-                                    onClick={() => navigate("/chat", { state: { question: q } })}
-                                    className="text-left bg-surfaceLight border border-border hover:border-primary/40 rounded-xl p-3 text-sm text-gray-400 hover:text-white transition-all duration-200"
-                                >
-                                    {q}
-                                </button>
-                            ))}
+                        <div className="w-full max-w-lg">
+                            <p className="text-gray-600 text-xs uppercase tracking-wider mb-3 font-semibold">Quick questions</p>
+                            <div className="grid grid-cols-2 gap-2.5">
+                                {[
+                                    { q: "What are Fundamental Rights in the Indian Constitution?", icon: "🇮🇳" },
+                                    { q: "How do I file an RTI application?", icon: "📋" },
+                                    { q: "What is punishment for theft in IPC?", icon: "⚖️" },
+                                    { q: "What to do if a product is defective?", icon: "🛒" },
+                                ].map(({ q, icon }) => (
+                                    <button
+                                        key={q}
+                                        onClick={() => navigate("/chat", { state: { question: q } })}
+                                        className="text-left bg-surfaceLight border border-border hover:border-primary/40 rounded-xl p-3.5 text-sm text-gray-400 hover:text-white transition-all duration-200 group"
+                                    >
+                                        <span className="text-base mr-2">{icon}</span>
+                                        <span className="group-hover:text-white transition-colors">{q}</span>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 )
@@ -63,8 +73,16 @@ export default function CitizenDashboard() {
 
     return (
         <div className="flex h-screen bg-bg overflow-hidden">
+            {/* Mobile overlay */}
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-20 md:hidden"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
             {/* ── Sidebar ──────────────────── */}
-            <aside className={`transition-all duration-300 ${sidebarOpen ? "w-64" : "w-0"} bg-surface border-r border-border flex flex-col overflow-hidden flex-shrink-0`}>
+            <aside className={`transition-all duration-300 ${sidebarOpen ? "w-64" : "w-0"} bg-surface border-r border-border flex flex-col overflow-hidden flex-shrink-0 fixed md:relative h-full z-30 md:z-auto`}>
                 {/* Logo */}
                 <div className="px-6 py-5 border-b border-border flex-shrink-0">
                     <div className="flex items-center gap-2">
@@ -104,6 +122,7 @@ export default function CitizenDashboard() {
                         ☰
                     </button>
                     <div className="flex items-center gap-3">
+                        <ThemeToggle />
                         <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center text-white font-bold text-sm shadow-glow">
                             {username?.charAt(0).toUpperCase()}
                         </div>

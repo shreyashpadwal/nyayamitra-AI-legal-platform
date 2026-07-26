@@ -1,0 +1,32 @@
+# Virtual environments — never copy into the image
+venv/
+legalenv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+
+# Local secrets — injected as HF Spaces env vars, not baked in
+.env
+*.env.local
+
+# Dev/test scripts (not needed in the running API)
+scripts/
+test_*.py
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Git history
+.git/
+.gitignore
+
+# Node (shouldn't be here, but just in case)
+node_modules/

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { apiGet, apiDelete } from "../utils/auth"
+import { SkeletonCard } from "./Skeleton"
 
 export default function ChatHistory() {
     const [history, setHistory] = useState([])
@@ -13,7 +14,9 @@ export default function ChatHistory() {
     const fetchHistory = async () => {
         try {
             const data = await apiGet("/citizen/history")
-            setHistory(data)
+            // Defensive client-side sort: newest first, regardless of API ordering
+            const sorted = [...data].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+            setHistory(sorted)
         } catch (e) { console.error(e) }
         finally { setLoading(false) }
     }
@@ -30,9 +33,10 @@ export default function ChatHistory() {
     const fmt = iso => new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })
 
     if (loading) return (
-        <div className="flex justify-center items-center py-20">
-            <div className="spinner" />
-            <span className="ml-3 text-gray-400">Loading history…</span>
+        <div className="space-y-3 max-w-3xl">
+            <SkeletonCard />
+            <SkeletonCard />
+            <SkeletonCard />
         </div>
     )
 

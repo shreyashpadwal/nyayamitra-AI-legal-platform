@@ -1,3 +1,4 @@
+# ARCHIVED: Requires the original "legal data/judgments.csv" dataset which no longer exists in this repo; kept for historical/reference purposes only.
 import os
 import shutil
 import pandas as pd

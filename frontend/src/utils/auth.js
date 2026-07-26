@@ -33,11 +33,13 @@ export const isAuthenticated = () => {
 export const isLawyer = () => getRole() === "lawyer"
 
 // ── Fetch helpers ────────────────────────────
-export const BASE_URL = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-    ? "http://127.0.0.1:8000"
-    : "https://nyayamitra-backend.onrender.com";
+// ── API Base URL ─────────────────────────────
+// Set VITE_API_URL in Vercel project settings (Environment Variables) to your
+// Hugging Face Space URL, e.g.:  https://your-username-nyayamitra.hf.space
+// Falls back to localhost for local development.
+export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000"
 
-export const API = `${BASE_URL}/api`;
+export const API = `${BASE_URL}/api`
 
 export const authHeaders = () => ({
     "Content-Type": "application/json",
@@ -62,6 +64,14 @@ export const apiPost = async (path, body) => {
 
 export const apiDelete = async (path) => {
     const res = await fetch(`${API}${path}`, { method: "DELETE", headers: authHeaders() })
-    if (!res.ok) throw new Error((await res.json()).detail || "Request failed")
+    if (!res.ok) {
+        // Use text() fallback so a non-JSON error body doesn't throw a second time
+        const text = await res.text()
+        let detail = text
+        try { detail = JSON.parse(text).detail || text } catch {}
+        throw new Error(detail || "Request failed")
+    }
+    // 204 No Content has no body — attempting .json() throws "Unexpected end of JSON input"
+    if (res.status === 204 || res.headers.get("content-length") === "0") return null
     return res.json()
 }

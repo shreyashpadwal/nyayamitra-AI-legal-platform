@@ -8,32 +8,52 @@ const ROLES = [
 ]
 
 export default function Register() {
-    const [form, setForm] = useState({ username: "", email: "", password: "", role: "citizen" })
+    const [form, setForm] = useState({
+        username: "",
+        email: "",
+        password: "",
+        role: "citizen",
+    })
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
     const navigate = useNavigate()
+
+    const isLawyer = form.role === "lawyer"
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         setError("")
         setLoading(true)
         try {
+            const payload = {
+                username: form.username,
+                email: form.email,
+                password: form.password,
+                role: form.role,
+            }
+
             const res = await fetch(`${API}/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(form)
+                body: JSON.stringify(payload),
             })
             const data = await res.json()
-            if (!res.ok) throw new Error(data.detail || "Registration failed")
+            // Pydantic validation errors return detail as an array of {loc, msg, type} objects.
+            // Plain backend errors return detail as a string. Handle both.
+            const extractDetail = (detail, fallback) =>
+                Array.isArray(detail)
+                    ? detail.map(d => d.msg || JSON.stringify(d)).join(", ")
+                    : (detail || fallback)
+            if (!res.ok) throw new Error(extractDetail(data.detail, "Registration failed"))
 
-            // Auto-login
+            // Auto-login immediately for both citizen and lawyer
             const loginRes = await fetch(`${API}/auth/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email: form.email, password: form.password })
+                body: JSON.stringify({ email: form.email, password: form.password }),
             })
             const loginData = await loginRes.json()
-            if (!loginRes.ok) throw new Error(loginData.detail || "Login failed")
+            if (!loginRes.ok) throw new Error(extractDetail(loginData.detail, "Login failed"))
 
             setSession(loginData.access_token, loginData.username, loginData.role)
             navigate(loginData.role === "lawyer" ? "/lawyer" : "/citizen")
@@ -44,6 +64,8 @@ export default function Register() {
         }
     }
 
+
+    // ── Registration form ─────────────────────────────────────────────────────
     return (
         <div className="min-h-screen bg-bg flex items-center justify-center px-4 bg-hero-gradient">
             <div className="w-full max-w-md">
@@ -64,7 +86,7 @@ export default function Register() {
                                     <button
                                         key={r.key}
                                         type="button"
-                                        onClick={() => setForm({ ...form, role: r.key })}
+                                        onClick={() => setForm({ ...form, role: r.key, bar_council_id: "" })}
                                         className={`p-4 rounded-xl border text-left transition-all duration-200
                       ${form.role === r.key
                                                 ? r.key === "lawyer"
@@ -81,6 +103,7 @@ export default function Register() {
                             </div>
                         </div>
 
+
                         <div>
                             <label className="block text-sm text-gray-400 mb-2">Username</label>
                             <input
@@ -89,7 +112,7 @@ export default function Register() {
                                 onChange={e => setForm({ ...form, username: e.target.value })}
                                 placeholder="legaluser123"
                                 required
-                                className={form.role === "lawyer" ? "input-gold" : "input"}
+                                className={isLawyer ? "input-gold" : "input"}
                             />
                         </div>
                         <div>
@@ -100,7 +123,7 @@ export default function Register() {
                                 onChange={e => setForm({ ...form, email: e.target.value })}
                                 placeholder="you@example.com"
                                 required
-                                className={form.role === "lawyer" ? "input-gold" : "input"}
+                                className={isLawyer ? "input-gold" : "input"}
                             />
                         </div>
                         <div>
@@ -112,9 +135,10 @@ export default function Register() {
                                 placeholder="••••••••"
                                 required
                                 minLength={6}
-                                className={form.role === "lawyer" ? "input-gold" : "input"}
+                                className={isLawyer ? "input-gold" : "input"}
                             />
                         </div>
+
 
                         {error && (
                             <div className="bg-red-500/10 border border-red-400/30 rounded-xl px-4 py-3 text-red-400 text-sm">
@@ -126,9 +150,11 @@ export default function Register() {
                             type="submit"
                             disabled={loading}
                             className={`w-full flex items-center justify-center gap-2
-                ${form.role === "lawyer" ? "btn-gold" : "btn-primary"}`}
+                ${isLawyer ? "btn-gold" : "btn-primary"}`}
                         >
-                            {loading ? <><div className={form.role === "lawyer" ? "spinner-gold" : "spinner"} /> Creating account...</> : "Create account →"}
+                            {loading
+                                ? <><div className={isLawyer ? "spinner-gold" : "spinner"} /> Creating account...</>
+                                : "Create account →"}
                         </button>
                     </form>
                 </div>

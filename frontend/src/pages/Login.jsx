@@ -19,7 +19,13 @@ export default function Login() {
                 body: JSON.stringify(form)
             })
             const data = await res.json()
-            if (!res.ok) throw new Error(data.detail || "Login failed")
+            // Pydantic validation errors return detail as an array of {loc, msg, type} objects.
+            // Plain backend errors return detail as a string. Handle both.
+            const extractDetail = (detail) =>
+                Array.isArray(detail)
+                    ? detail.map(d => d.msg || JSON.stringify(d)).join(", ")
+                    : (detail || "Login failed")
+            if (!res.ok) throw new Error(extractDetail(data.detail))
 
             setSession(data.access_token, data.username, data.role)
             navigate(data.role === "lawyer" ? "/lawyer" : "/citizen")

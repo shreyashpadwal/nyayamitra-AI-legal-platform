@@ -1,6 +1,9 @@
 import os
 import logging
 import faiss
+from dotenv import load_dotenv
+
+load_dotenv()  # no-op on HF Spaces (vars are injected); needed for local dev
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -71,17 +74,35 @@ def startup_event():
     else:
         logger.warning(f"⚠️ FAISS index not found at {FAISS_PATH}")
 
+    # ✅ Preload citizen retriever (HybridRetriever: FAISS + BM25 embeddings)
+    #    Prevents cold-start latency on the first citizen query.
+    try:
+        from .services.vector_service import _get_citizen_retriever
+        _get_citizen_retriever()
+        logger.info("✅ Citizen HybridRetriever preloaded")
+    except Exception as e:
+        logger.error(f"❌ Citizen retriever preload failed (non-fatal): {e}")
 
-# ---------------------------------------------------
-# CORS Configuration (Production Ready)
-# ---------------------------------------------------
+    # ✅ Preload cross-encoder reranker (sentence-transformers model)
+    #    The cross-encoder download/load is the single biggest cold-start cost.
+    try:
+        from .services.vector_service import _get_reranker
+        _get_reranker()
+        logger.info("✅ CrossEncoderReranker preloaded")
+    except Exception as e:
+        logger.error(f"❌ Reranker preload failed (non-fatal): {e}")
+
+
+# FRONTEND_URL is set as an env var on HF Spaces after the Vercel deploy URL is known.
+# Falls back to localhost for local development.
+_FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        _FRONTEND_URL,
         "http://localhost:5173",
         "http://127.0.0.1:5173",
-        "https://nyayamitra.vercel.app",
-        "https://nyaya-mitra.vercel.app"
     ],
     allow_credentials=True,
     allow_methods=["*"],

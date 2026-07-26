@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { apiPost, API } from "../utils/auth"
 import ReactMarkdown from "react-markdown"
+import { toast } from "./Toast"
 
 const DOC_TYPES = [
     { key: "police_complaint", icon: "🚔", title: "Police Complaint", desc: "File a formal complaint with police" },
@@ -16,11 +17,12 @@ export default function DocumentGenerator() {
     const [draftId, setDraftId] = useState(null)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
+    const [verification, setVerification] = useState(null)
 
     const handleGenerate = async (e) => {
         e.preventDefault()
         if (!docType) return
-        setLoading(true); setError(""); setGenerated("")
+        setLoading(true); setError(""); setGenerated(""); setVerification(null)
         try {
             const data = await apiPost("/citizen/generate-document", {
                 doc_type: docType,
@@ -29,6 +31,7 @@ export default function DocumentGenerator() {
             setGenerated(data.content)
             setTitle(data.title || "Document")
             setDraftId(data.draft_id)
+            setVerification(data.verification ?? null)
         } catch (err) {
             setError(err.message)
         } finally {
@@ -38,6 +41,7 @@ export default function DocumentGenerator() {
 
     const handleCopy = () => {
         navigator.clipboard.writeText(generated)
+        toast.success("Copied to clipboard!")
     }
 
     const handleDownload = async () => {
@@ -70,7 +74,18 @@ export default function DocumentGenerator() {
                 {DOC_TYPES.map(d => (
                     <button
                         key={d.key}
-                        onClick={() => setDocType(d.key)}
+                        onClick={() => {
+                            if (d.key !== docType) {
+                                setDocType(d.key)
+                                setDesc("")
+                                setGenerated("")
+                                setTitle("")
+                                setDraftId(null)
+                                setVerification(null)
+                                setError("")
+                            }
+                        }}
+
                         className={`p-4 rounded-xl border text-left transition-all duration-200
               ${docType === d.key ? "border-primary/50 bg-primary/10" : "card hover:border-gray-600"}`}
                     >
@@ -117,6 +132,29 @@ export default function DocumentGenerator() {
             {/* Output */}
             {generated && (
                 <div className="mt-6">
+                    {/* Verification warning banner */}
+                    {verification?.has_unverified && (
+                        <div className="mb-4 flex items-start gap-3 bg-amber-500/10 border border-amber-400/40 rounded-xl px-4 py-3">
+                            <span className="text-amber-400 text-lg mt-0.5 shrink-0">⚠️</span>
+                            <div>
+                                <p className="text-amber-300 text-sm font-semibold mb-1">
+                                    Some legal references could not be verified
+                                </p>
+                                <p className="text-amber-200/80 text-xs leading-relaxed">
+                                    The following references were not confirmed against our legal database.
+                                    Please review them with a lawyer or official source before submitting this document:
+                                </p>
+                                <ul className="mt-2 space-y-0.5">
+                                    {verification.unverified_citations.map((cite, i) => (
+                                        <li key={i} className="text-amber-300 text-xs font-mono bg-amber-500/10 rounded px-2 py-0.5 inline-block mr-1 mb-1">
+                                            {cite}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="flex items-center justify-between mb-3">
                         <h3 className="text-white font-semibold">{title}</h3>
                         <div className="flex gap-2">

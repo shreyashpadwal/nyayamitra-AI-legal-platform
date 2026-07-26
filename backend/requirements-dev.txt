@@ -1,0 +1,9 @@
+# Development / evaluation dependencies.
+# NOT used in the production Docker image — install separately when running evals locally:
+#   pip install -r requirements-dev.txt
+
+# RAG evaluation framework
+ragas
+
+# HuggingFace Datasets (used by ragas and run_eval.py)
+datasets

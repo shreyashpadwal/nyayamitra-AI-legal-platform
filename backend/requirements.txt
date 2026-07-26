@@ -4,12 +4,21 @@ python-dotenv
 
 # AI / RAG
 langchain
+langchain-core
 langchain-community
 langchain-groq
 langchain-text-splitters
 faiss-cpu
 sentence-transformers
 pypdf
+
+# LangGraph + Advanced RAG
+langgraph
+tavily-python
+rank-bm25
+
+# Evaluation deps (NOT installed in production Docker image)
+# Install separately for local eval runs:  pip install -r requirements-dev.txt
 
 # Core
 pydantic
