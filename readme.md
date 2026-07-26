@@ -29,6 +29,52 @@ Helps lawyers find similar case judgments and generate structured litigation doc
 
 ---
 
+## 🏗️ System Architecture
+
+```mermaid
+flowchart TD
+    User(["User (React Frontend)"]) --> Auth{"FastAPI Backend (JWT Auth)"}
+
+    %% Citizen Pipeline
+    Auth -- Citizen Mode --> CitRewrite["Query Rewrite & Statute Detection"]
+    CitRewrite --> CitRetrieve["Hybrid Retrieve (BM25 + FAISS)"]
+    CitRetrieve --> CitRerank["Cross-Encoder Rerank"]
+    CitRerank --> CitEval{"Relevance Evaluation"}
+    CitEval -->|Relevant| CitGen["Generate Answer (Groq LLaMA 3.1)"]
+    CitEval -->|Not Relevant| CitRewrite
+    CitGen --> CitCheck{"Hallucination Check"}
+    CitCheck -->|Pass| CitFinal(["Final Answer + Sources (SSE)"])
+    CitCheck -->|Fail| CitGen
+    CitFinal -.-> User
+
+    %% Lawyer Pipeline
+    Auth -- Lawyer Mode --> LawRewrite["Query Rewrite"]
+    LawRewrite --> LawRetrieve["Hybrid Retrieve (SC Judgments)"]
+    LawRetrieve --> LawRerank["Cross-Encoder Rerank"]
+    LawRerank --> LawEval{"Relevance Evaluation"}
+    LawEval -->|Not Relevant| LawNoPrec(["No Precedent Found"])
+    LawEval -->|Relevant| LawRefine["Knowledge Refinement"]
+    LawRefine --> LawGen["Generate Strategy (Groq LLaMA 3.1)"]
+    LawGen --> LawCheck{"Citation Check"}
+    LawCheck -->|Pass| LawFinal(["Final Strategy + Precedents"])
+    LawCheck -->|Fail| LawGen
+    LawFinal -.-> User
+    LawNoPrec -.-> User
+
+    %% Shared Infrastructure
+    subgraph SharedInfrastructure ["Shared Infrastructure"]
+        DB[("PostgreSQL (Neon/Supabase)")]
+        FAISSC[("FAISS Index (Citizen ~9MB)")]
+        FAISSL[("FAISS Index (Lawyer ~12MB)")]
+    end
+
+    Auth -.-> DB
+    CitRetrieve -.-> FAISSC
+    LawRetrieve -.-> FAISSL
+```
+
+---
+
 ## 🛠 Tech Stack
 
 | Layer | Technology |
