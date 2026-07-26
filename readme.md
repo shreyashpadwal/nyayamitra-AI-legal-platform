@@ -129,13 +129,11 @@ npm run dev
 
 ## 🚀 Deployment Status
 
-**Frontend**: Deployed live on Vercel at `<your-vercel-url>` *(add link here when deployed)*.
+This project is not currently deployed to a public URL. The frontend is ready to deploy to Vercel (see `.env.example` for the required `VITE_API_URL` variable).
 
-**Backend**: Runs locally / self-hosted for demo purposes.
+The backend was tested against Render's free tier during development — it builds successfully but the ML pipeline (`sentence-transformers` embeddings, cross-encoder reranker, FAISS) exceeds the free tier's 512MB RAM limit at model-load time, causing an out-of-memory crash. Free tiers with sufficient RAM for this stack (e.g., Hugging Face Spaces Docker CPU tier) require billing verification that wasn't available for this project.
 
-> **Note on Free-Tier Deployment:** The backend was tested against Render's free tier during development. It builds successfully but the ML pipeline (`sentence-transformers` embeddings, cross-encoder reranker, FAISS) exceeds the free tier's 512MB RAM limit at model-load time. Free tiers with sufficient RAM for this stack (e.g., Hugging Face Spaces Docker CPU tier) require billing verification that wasn't available for this project, so the backend is run locally for demonstration.
-
-A `Dockerfile` is included and ready for deployment on any host with adequate RAM (4GB+ recommended) for anyone wanting to self-host it.
+A `Dockerfile` is included and ready for deployment on any host with adequate RAM (4GB+ recommended). For demonstration purposes, run both frontend and backend locally per the setup instructions above.
 
 ### Database — Neon (free tier)
 1. Create a project at [neon.tech](https://neon.tech).
