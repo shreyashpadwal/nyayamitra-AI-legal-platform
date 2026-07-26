@@ -134,7 +134,7 @@ NyayaMitra/
 ### Prerequisites
 - Python 3.10+
 - Node.js 18+
-- PostgreSQL (local) or a free [Neon](https://neon.tech) / [Supabase](https://supabase.com) instance
+- PostgreSQL (local) 
 - [Groq API key](https://console.groq.com) (free tier)
 
 ### Backend
